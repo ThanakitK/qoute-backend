@@ -510,3 +510,211 @@ func Test_CreateUser(t *testing.T) {
 		})
 	}
 }
+
+func Test_UpdateVote(t *testing.T) {
+	type test struct {
+		Name  string
+		Input struct {
+			ID      string
+			QouteID string
+		}
+		Mock struct {
+			UpdateUser struct {
+				Input struct {
+					ID      string
+					Payload models.UpdateUserModel
+				}
+				Output models.UserModel
+				Error  error
+			}
+		}
+		Output models.ResponseModel
+	}
+	id := uuid.New().String()
+	qouteID := uuid.New().String()
+	updateDate := time.Now()
+	cases := []test{
+		{
+			Name: "update vote success",
+			Input: struct {
+				ID      string
+				QouteID string
+			}{
+				ID:      id,
+				QouteID: qouteID,
+			},
+			Mock: struct {
+				UpdateUser struct {
+					Input struct {
+						ID      string
+						Payload models.UpdateUserModel
+					}
+					Output models.UserModel
+					Error  error
+				}
+			}{
+				UpdateUser: struct {
+					Input struct {
+						ID      string
+						Payload models.UpdateUserModel
+					}
+					Output models.UserModel
+					Error  error
+				}{
+					Input: struct {
+						ID      string
+						Payload models.UpdateUserModel
+					}{
+						ID: id,
+						Payload: models.UpdateUserModel{
+							QuoteID: qouteID,
+						},
+					},
+					Output: models.UserModel{
+						ID:         id,
+						QouteID:    qouteID,
+						UpdateDate: updateDate,
+					},
+					Error: nil,
+				},
+			},
+			Output: models.ResponseModel{
+				Status:  true,
+				Code:    200,
+				Message: "update vote success",
+				Result: models.UserModel{
+					ID:         id,
+					QouteID:    qouteID,
+					UpdateDate: updateDate,
+				},
+			},
+		},
+		{
+			Name: "id not found",
+			Input: struct {
+				ID      string
+				QouteID string
+			}{
+				ID:      "",
+				QouteID: qouteID,
+			},
+			Mock: struct {
+				UpdateUser struct {
+					Input struct {
+						ID      string
+						Payload models.UpdateUserModel
+					}
+					Output models.UserModel
+					Error  error
+				}
+			}{
+				UpdateUser: struct {
+					Input struct {
+						ID      string
+						Payload models.UpdateUserModel
+					}
+					Output models.UserModel
+					Error  error
+				}{},
+			},
+			Output: models.ResponseModel{
+				Status:  false,
+				Code:    400,
+				Message: "id or qouteID not found",
+				Result:  nil,
+			},
+		},
+		{
+			Name: "qouteID not found",
+			Input: struct {
+				ID      string
+				QouteID string
+			}{
+				ID:      id,
+				QouteID: "",
+			},
+			Mock: struct {
+				UpdateUser struct {
+					Input struct {
+						ID      string
+						Payload models.UpdateUserModel
+					}
+					Output models.UserModel
+					Error  error
+				}
+			}{
+				UpdateUser: struct {
+					Input struct {
+						ID      string
+						Payload models.UpdateUserModel
+					}
+					Output models.UserModel
+					Error  error
+				}{},
+			},
+			Output: models.ResponseModel{
+				Status:  false,
+				Code:    400,
+				Message: "id or qouteID not found",
+				Result:  nil,
+			},
+		},
+		{
+			Name: "update user error",
+			Input: struct {
+				ID      string
+				QouteID string
+			}{
+				ID:      id,
+				QouteID: qouteID,
+			},
+			Mock: struct {
+				UpdateUser struct {
+					Input struct {
+						ID      string
+						Payload models.UpdateUserModel
+					}
+					Output models.UserModel
+					Error  error
+				}
+			}{
+				UpdateUser: struct {
+					Input struct {
+						ID      string
+						Payload models.UpdateUserModel
+					}
+					Output models.UserModel
+					Error  error
+				}{
+					Input: struct {
+						ID      string
+						Payload models.UpdateUserModel
+					}{
+						ID: id,
+						Payload: models.UpdateUserModel{
+							QuoteID: qouteID,
+						},
+					},
+					Output: models.UserModel{},
+					Error:  errors.New("update user error"),
+				},
+			},
+			Output: models.ResponseModel{
+				Status:  false,
+				Code:    400,
+				Message: "update user error",
+				Result:  nil,
+			},
+		},
+	}
+
+	for _, c := range cases {
+		t.Run(c.Name, func(t *testing.T) {
+			userRepo := repositories.NewUserRepositoryMock()
+			userRepo.On("UpdateUser", mock.Anything, mock.Anything).Return(c.Mock.UpdateUser.Output, c.Mock.UpdateUser.Error)
+			userService := services.NewUserService(userRepo)
+			result := userService.UpdateVote(c.Input.ID, c.Input.QouteID)
+			assert.Equal(t, result, c.Output)
+		})
+	}
+}
