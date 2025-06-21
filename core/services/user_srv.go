@@ -51,7 +51,7 @@ func (s *UserSrv) SignIn(email string, password string) (result models.ResponseM
 		return models.ResponseModel{
 			Status:  false,
 			Code:    400,
-			Message: "email or password invalid",
+			Message: err.Error(),
 			Result:  nil,
 		}
 	}
@@ -59,7 +59,7 @@ func (s *UserSrv) SignIn(email string, password string) (result models.ResponseM
 		return models.ResponseModel{
 			Status:  false,
 			Code:    400,
-			Message: "email or password invalid",
+			Message: "password invalid",
 			Result:  nil,
 		}
 	}
