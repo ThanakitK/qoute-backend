@@ -54,7 +54,7 @@ func (s *QuoteSrv) CreateQuote(quote string) (result models.ResponseModel) {
 			Result:  nil,
 		}
 	}
-	payload := models.RepoCreateQuoteModel{
+	payload := models.CreateQuoteModel{
 		ID:         uuid.New().String(),
 		Quote:      quote,
 		Vote:       0,
@@ -95,7 +95,7 @@ func (s *QuoteSrv) UpdateQuote(id string, quote string, vote int) (result models
 			Result:  nil,
 		}
 	}
-	payload := models.RepoUpdateQuoteModel{
+	payload := models.UpdateQuoteModel{
 		Quote:      quote,
 		Vote:       vote,
 		UpdateDate: time.Now(),

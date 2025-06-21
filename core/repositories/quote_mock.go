@@ -24,12 +24,12 @@ func (m *quoteRepoMock) GetQuote(id string) (result models.QuoteModel, err error
 	return args.Get(0).(models.QuoteModel), args.Error(1)
 }
 
-func (m *quoteRepoMock) CreateQuote(payload models.RepoCreateQuoteModel) (result models.QuoteModel, err error) {
+func (m *quoteRepoMock) CreateQuote(payload models.CreateQuoteModel) (result models.QuoteModel, err error) {
 	args := m.Called(payload)
 	return args.Get(0).(models.QuoteModel), args.Error(1)
 }
 
-func (m *quoteRepoMock) UpdateQuote(id string, payload models.RepoUpdateQuoteModel) (result models.QuoteModel, err error) {
+func (m *quoteRepoMock) UpdateQuote(id string, payload models.UpdateQuoteModel) (result models.QuoteModel, err error) {
 	args := m.Called(id, payload)
 	return args.Get(0).(models.QuoteModel), args.Error(1)
 }

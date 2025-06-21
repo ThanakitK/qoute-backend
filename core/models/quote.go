@@ -6,7 +6,7 @@ type HandCreateQuoteBodyModel struct {
 	Quote string `json:"quote"`
 }
 
-type RepoCreateQuoteModel struct {
+type CreateQuoteModel struct {
 	ID         string    `json:"id" bson:"id"`
 	Quote      string    `json:"quote" bson:"quote"`
 	Vote       int       `json:"vote" bson:"vote"`
@@ -14,7 +14,7 @@ type RepoCreateQuoteModel struct {
 	UpdateDate time.Time `json:"update_date" bson:"update_date"`
 }
 
-type RepoUpdateQuoteModel struct {
+type UpdateQuoteModel struct {
 	Quote      string    `json:"quote" bson:"quote,omitempty"`
 	Vote       int       `json:"vote" bson:"vote,omitempty"`
 	UpdateDate time.Time `json:"update_date" bson:"update_date"`

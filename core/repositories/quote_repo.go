@@ -14,9 +14,9 @@ type QuoteRepository interface {
 
 	GetQuote(id string) (result models.QuoteModel, err error)
 
-	CreateQuote(quote models.RepoCreateQuoteModel) (result models.QuoteModel, err error)
+	CreateQuote(quote models.CreateQuoteModel) (result models.QuoteModel, err error)
 
-	UpdateQuote(id string, payload models.RepoUpdateQuoteModel) (result models.QuoteModel, err error)
+	UpdateQuote(id string, payload models.UpdateQuoteModel) (result models.QuoteModel, err error)
 
 	DeleteQuote(id string) error
 }
@@ -59,7 +59,7 @@ func (r *QuoteRepo) GetQuote(id string) (result models.QuoteModel, err error) {
 	return result, nil
 }
 
-func (r *QuoteRepo) CreateQuote(payload models.RepoCreateQuoteModel) (result models.QuoteModel, err error) {
+func (r *QuoteRepo) CreateQuote(payload models.CreateQuoteModel) (result models.QuoteModel, err error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
@@ -74,7 +74,7 @@ func (r *QuoteRepo) CreateQuote(payload models.RepoCreateQuoteModel) (result mod
 	return result, nil
 }
 
-func (r *QuoteRepo) UpdateQuote(id string, payload models.RepoUpdateQuoteModel) (result models.QuoteModel, err error) {
+func (r *QuoteRepo) UpdateQuote(id string, payload models.UpdateQuoteModel) (result models.QuoteModel, err error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
