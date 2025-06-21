@@ -247,7 +247,6 @@ func Test_UpdateQuote(t *testing.T) {
 		Output models.ResponseModel
 	}
 	id := uuid.New().String()
-	quoteID := uuid.New().String()
 	date := time.Now()
 	cases := []test{
 		{
@@ -258,7 +257,7 @@ func Test_UpdateQuote(t *testing.T) {
 				Vote  int
 			}{
 				ID:    id,
-				Quote: quoteID,
+				Quote: "quote",
 				Vote:  1,
 			},
 			Mock: struct {
@@ -285,13 +284,13 @@ func Test_UpdateQuote(t *testing.T) {
 					}{
 						ID: id,
 						Payload: models.UpdateQuoteModel{
-							Quote: quoteID,
+							Quote: "quote",
 							Vote:  1,
 						},
 					},
 					Output: models.QuoteModel{
 						ID:         id,
-						Quote:      quoteID,
+						Quote:      "quote",
 						UpdateDate: date,
 					},
 					Error: nil,
@@ -303,7 +302,7 @@ func Test_UpdateQuote(t *testing.T) {
 				Message: "update quote success",
 				Result: models.QuoteModel{
 					ID:         id,
-					Quote:      quoteID,
+					Quote:      "quote",
 					UpdateDate: date,
 				},
 			},
@@ -316,7 +315,7 @@ func Test_UpdateQuote(t *testing.T) {
 				Vote  int
 			}{
 				ID:    "",
-				Quote: quoteID,
+				Quote: "quote",
 				Vote:  1,
 			},
 			Mock: struct {
@@ -390,7 +389,7 @@ func Test_UpdateQuote(t *testing.T) {
 				Vote  int
 			}{
 				ID:    id,
-				Quote: quoteID,
+				Quote: "quote",
 				Vote:  -1,
 			},
 			Mock: struct {
@@ -427,7 +426,7 @@ func Test_UpdateQuote(t *testing.T) {
 				Vote  int
 			}{
 				ID:    id,
-				Quote: quoteID,
+				Quote: "quote",
 				Vote:  1,
 			},
 			Mock: struct {
@@ -454,7 +453,7 @@ func Test_UpdateQuote(t *testing.T) {
 					}{
 						ID: id,
 						Payload: models.UpdateQuoteModel{
-							Quote: quoteID,
+							Quote: "quote",
 							Vote:  1,
 						},
 					},
@@ -477,6 +476,211 @@ func Test_UpdateQuote(t *testing.T) {
 
 			quoteService := services.NewQuoteService(quoteRepo)
 			result := quoteService.UpdateQuote(c.Input.ID, c.Input.Quote, c.Input.Vote)
+
+			assert.Equal(t, c.Output, result)
+		})
+	}
+}
+
+func Test_DeleteQuote(t *testing.T) {
+	type test struct {
+		Name  string
+		Input string
+		Mock  struct {
+			GetQuote struct {
+				Input  string
+				Output models.QuoteModel
+				Error  error
+			}
+			DeleteQuote struct {
+				Input string
+				Error error
+			}
+		}
+		Output models.ResponseModel
+	}
+	id := uuid.New().String()
+	cases := []test{
+		{
+			Name:  "delete quote success",
+			Input: id,
+			Mock: struct {
+				GetQuote struct {
+					Input  string
+					Output models.QuoteModel
+					Error  error
+				}
+				DeleteQuote struct {
+					Input string
+					Error error
+				}
+			}{
+				GetQuote: struct {
+					Input  string
+					Output models.QuoteModel
+					Error  error
+				}{
+					Input: id,
+					Output: models.QuoteModel{
+						ID:    id,
+						Quote: "quote",
+						Vote:  0,
+					},
+					Error: nil,
+				},
+				DeleteQuote: struct {
+					Input string
+					Error error
+				}{
+					Input: id,
+					Error: nil,
+				},
+			},
+			Output: models.ResponseModel{
+				Status:  true,
+				Code:    200,
+				Message: "delete quote success",
+				Result:  nil,
+			},
+		},
+		{
+			Name:  "id not found",
+			Input: "",
+			Mock: struct {
+				GetQuote struct {
+					Input  string
+					Output models.QuoteModel
+					Error  error
+				}
+				DeleteQuote struct {
+					Input string
+					Error error
+				}
+			}{},
+			Output: models.ResponseModel{
+				Status:  false,
+				Code:    400,
+				Message: "id not found",
+				Result:  nil,
+			},
+		},
+		{
+			Name:  "get quote error",
+			Input: id,
+			Mock: struct {
+				GetQuote struct {
+					Input  string
+					Output models.QuoteModel
+					Error  error
+				}
+				DeleteQuote struct {
+					Input string
+					Error error
+				}
+			}{
+				GetQuote: struct {
+					Input  string
+					Output models.QuoteModel
+					Error  error
+				}{
+					Input:  id,
+					Output: models.QuoteModel{},
+					Error:  errors.New("get quote error"),
+				},
+			},
+			Output: models.ResponseModel{
+				Status:  false,
+				Code:    400,
+				Message: "get quote error",
+				Result:  nil,
+			},
+		},
+		{
+			Name:  "vote > 0",
+			Input: id,
+			Mock: struct {
+				GetQuote struct {
+					Input  string
+					Output models.QuoteModel
+					Error  error
+				}
+				DeleteQuote struct {
+					Input string
+					Error error
+				}
+			}{
+				GetQuote: struct {
+					Input  string
+					Output models.QuoteModel
+					Error  error
+				}{
+					Input: id,
+					Output: models.QuoteModel{
+						ID:    id,
+						Quote: "quote",
+						Vote:  1,
+					},
+					Error: nil,
+				},
+			},
+			Output: models.ResponseModel{
+				Status:  false,
+				Code:    400,
+				Message: "cannot delete quote with vote > 0",
+				Result:  nil,
+			},
+		},
+		{
+			Name:  "delete quote error",
+			Input: id,
+			Mock: struct {
+				GetQuote struct {
+					Input  string
+					Output models.QuoteModel
+					Error  error
+				}
+				DeleteQuote struct {
+					Input string
+					Error error
+				}
+			}{
+				GetQuote: struct {
+					Input  string
+					Output models.QuoteModel
+					Error  error
+				}{
+					Input: id,
+					Output: models.QuoteModel{
+						ID:    id,
+						Quote: "quote",
+						Vote:  0,
+					},
+					Error: nil,
+				},
+				DeleteQuote: struct {
+					Input string
+					Error error
+				}{
+					Input: id,
+					Error: errors.New("delete quote error"),
+				},
+			},
+			Output: models.ResponseModel{
+				Status:  false,
+				Code:    400,
+				Message: "delete quote error",
+				Result:  nil,
+			},
+		},
+	}
+	for _, c := range cases {
+		t.Run(c.Name, func(t *testing.T) {
+			quoteRepo := repositories.NewQuoteRepositoryMock()
+			quoteRepo.On("GetQuote", mock.Anything).Return(c.Mock.GetQuote.Output, c.Mock.GetQuote.Error)
+			quoteRepo.On("DeleteQuote", mock.Anything).Return(c.Mock.DeleteQuote.Error)
+
+			quoteService := services.NewQuoteService(quoteRepo)
+			result := quoteService.DeleteQuote(c.Input)
 
 			assert.Equal(t, c.Output, result)
 		})
