@@ -33,7 +33,7 @@ func Test_SignIn(t *testing.T) {
 	id := uuid.New().String()
 	cases := []test{
 		{
-			Name: "success",
+			Name: "sign in success",
 			Input: struct {
 				Email    string
 				Password string
