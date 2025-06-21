@@ -12,7 +12,8 @@ var Env = struct {
 	Cors       string `mapstructure:"CORS"`
 	JWT_SECRET string `mapstructure:"JWT_SECRET"`
 }{
-	Cors: "*",
+	Cors:       "*",
+	JWT_SECRET: "secret",
 }
 
 func NewAppInitEnvironment() {

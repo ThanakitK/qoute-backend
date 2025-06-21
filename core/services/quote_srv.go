@@ -46,6 +46,14 @@ func (s *QuoteSrv) GetQuotes() (result models.ResponseModel) {
 }
 
 func (s *QuoteSrv) CreateQuote(quote string) (result models.ResponseModel) {
+	if quote == "" {
+		return models.ResponseModel{
+			Status:  false,
+			Code:    400,
+			Message: "quote not found",
+			Result:  nil,
+		}
+	}
 	payload := models.RepoCreateQuoteModel{
 		ID:         uuid.New().String(),
 		Quote:      quote,
@@ -71,6 +79,22 @@ func (s *QuoteSrv) CreateQuote(quote string) (result models.ResponseModel) {
 }
 
 func (s *QuoteSrv) UpdateQuote(id string, quote string, vote int) (result models.ResponseModel) {
+	if id == "" || quote == "" {
+		return models.ResponseModel{
+			Status:  false,
+			Code:    400,
+			Message: "id or quote not found",
+			Result:  nil,
+		}
+	}
+	if vote < 0 {
+		return models.ResponseModel{
+			Status:  false,
+			Code:    400,
+			Message: "vote must be >= 0",
+			Result:  nil,
+		}
+	}
 	payload := models.RepoUpdateQuoteModel{
 		Quote:      quote,
 		Vote:       vote,
@@ -95,6 +119,14 @@ func (s *QuoteSrv) UpdateQuote(id string, quote string, vote int) (result models
 }
 
 func (s *QuoteSrv) DeleteQuote(id string) (result models.ResponseModel) {
+	if id == "" {
+		return models.ResponseModel{
+			Status:  false,
+			Code:    400,
+			Message: "id not found",
+			Result:  nil,
+		}
+	}
 	res, err := s.quoteRepo.GetQuote(id)
 	if err != nil {
 		return models.ResponseModel{

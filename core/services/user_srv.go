@@ -28,6 +28,24 @@ func NewUserService(userRepo repositories.UserRepository) UserService {
 }
 
 func (s *UserSrv) SignIn(email string, password string) (result models.ResponseModel) {
+	if email == "" || password == "" {
+		return models.ResponseModel{
+			Status:  false,
+			Code:    400,
+			Message: "email or password not found",
+			Result:  nil,
+		}
+	}
+
+	if !utils.IsEmail(email) {
+		return models.ResponseModel{
+			Status:  false,
+			Code:    400,
+			Message: "email invalid",
+			Result:  nil,
+		}
+	}
+
 	user, err := s.userRepo.GetUser(email)
 	if err != nil {
 		return models.ResponseModel{
@@ -70,6 +88,24 @@ func (s *UserSrv) SignIn(email string, password string) (result models.ResponseM
 }
 
 func (s *UserSrv) CreateUser(email string, password string) (result models.ResponseModel) {
+	if email == "" || password == "" {
+		return models.ResponseModel{
+			Status:  false,
+			Code:    400,
+			Message: "email or password not found",
+			Result:  nil,
+		}
+	}
+
+	if !utils.IsEmail(email) {
+		return models.ResponseModel{
+			Status:  false,
+			Code:    400,
+			Message: "email invalid",
+			Result:  nil,
+		}
+	}
+
 	_, err := s.userRepo.GetUser(email)
 	if err == nil {
 		return models.ResponseModel{
@@ -105,6 +141,14 @@ func (s *UserSrv) CreateUser(email string, password string) (result models.Respo
 }
 
 func (s *UserSrv) UpdateVote(id string, qouteID string) (result models.ResponseModel) {
+	if id == "" || qouteID == "" {
+		return models.ResponseModel{
+			Status:  false,
+			Code:    400,
+			Message: "id or qouteID not found",
+			Result:  nil,
+		}
+	}
 	payload := models.UpdateUserModel{
 		QuoteID:    qouteID,
 		UpdateDate: time.Now(),
