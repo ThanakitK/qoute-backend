@@ -134,7 +134,7 @@ func (s *UserSrv) CreateUser(email string, password string) (result models.Respo
 	}
 	return models.ResponseModel{
 		Status:  true,
-		Code:    200,
+		Code:    201,
 		Message: "create user success",
 		Result:  nil,
 	}

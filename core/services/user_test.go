@@ -4,11 +4,13 @@ import (
 	"backend/core/models"
 	"backend/core/repositories"
 	"backend/core/services"
+	"errors"
 	"testing"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -221,6 +223,290 @@ func Test_SignIn(t *testing.T) {
 			result := userService.SignIn(c.Input.Email, c.Input.Password)
 
 			assert.Equal(t, result.Message, c.Output.Message)
+		})
+	}
+}
+
+func Test_CreateUser(t *testing.T) {
+	type test struct {
+		Name  string
+		Input struct {
+			Email    string
+			Password string
+		}
+		Mock struct {
+			GetUser struct {
+				Input  string
+				Output models.UserModel
+				Error  error
+			}
+			CreateUser struct {
+				Input models.CreateUserModel
+				Error error
+			}
+		}
+		Output models.ResponseModel
+	}
+	id := uuid.New().String()
+	cases := []test{
+		{
+			Name: "create success",
+			Input: struct {
+				Email    string
+				Password string
+			}{
+				Email:    "test@gmail.com",
+				Password: "123",
+			},
+			Mock: struct {
+				GetUser struct {
+					Input  string
+					Output models.UserModel
+					Error  error
+				}
+				CreateUser struct {
+					Input models.CreateUserModel
+					Error error
+				}
+			}{
+				GetUser: struct {
+					Input  string
+					Output models.UserModel
+					Error  error
+				}{
+					Input:  "test@gmail.com",
+					Output: models.UserModel{},
+					Error:  mongo.ErrNoDocuments,
+				},
+				CreateUser: struct {
+					Input models.CreateUserModel
+					Error error
+				}{
+					Input: models.CreateUserModel{
+						ID:       id,
+						Email:    "test@gmail.com",
+						Password: "$2a$10$TODe5QSVwJdjrhPnpKPZb.uRL7dMA3YnOx6VCXcZs5HiPoYHs7c.6",
+					},
+					Error: nil,
+				},
+			},
+			Output: models.ResponseModel{
+				Status:  true,
+				Code:    201,
+				Message: "create user success",
+				Result:  nil,
+			},
+		},
+		{
+			Name: "email not found",
+			Input: struct {
+				Email    string
+				Password string
+			}{
+				Email:    "",
+				Password: "123",
+			},
+			Mock: struct {
+				GetUser struct {
+					Input  string
+					Output models.UserModel
+					Error  error
+				}
+				CreateUser struct {
+					Input models.CreateUserModel
+					Error error
+				}
+			}{
+				GetUser: struct {
+					Input  string
+					Output models.UserModel
+					Error  error
+				}{},
+				CreateUser: struct {
+					Input models.CreateUserModel
+					Error error
+				}{},
+			},
+			Output: models.ResponseModel{
+				Status:  false,
+				Code:    400,
+				Message: "email or password not found",
+				Result:  nil,
+			},
+		},
+		{
+			Name: "password not found",
+			Input: struct {
+				Email    string
+				Password string
+			}{
+				Email:    "test@gmail.com",
+				Password: "",
+			},
+			Mock: struct {
+				GetUser struct {
+					Input  string
+					Output models.UserModel
+					Error  error
+				}
+				CreateUser struct {
+					Input models.CreateUserModel
+					Error error
+				}
+			}{
+				GetUser: struct {
+					Input  string
+					Output models.UserModel
+					Error  error
+				}{},
+				CreateUser: struct {
+					Input models.CreateUserModel
+					Error error
+				}{},
+			},
+			Output: models.ResponseModel{
+				Status:  false,
+				Code:    400,
+				Message: "email or password not found",
+				Result:  nil,
+			},
+		},
+		{
+			Name: "email invalid",
+			Input: struct {
+				Email    string
+				Password string
+			}{
+				Email:    "test",
+				Password: "123",
+			},
+			Mock: struct {
+				GetUser struct {
+					Input  string
+					Output models.UserModel
+					Error  error
+				}
+				CreateUser struct {
+					Input models.CreateUserModel
+					Error error
+				}
+			}{
+				GetUser: struct {
+					Input  string
+					Output models.UserModel
+					Error  error
+				}{},
+				CreateUser: struct {
+					Input models.CreateUserModel
+					Error error
+				}{},
+			},
+			Output: models.ResponseModel{
+				Status:  false,
+				Code:    400,
+				Message: "email invalid",
+				Result:  nil,
+			},
+		},
+		{
+			Name: "email already exist",
+			Input: struct {
+				Email    string
+				Password string
+			}{
+				Email:    "test@gmail.com",
+				Password: "123",
+			},
+			Mock: struct {
+				GetUser struct {
+					Input  string
+					Output models.UserModel
+					Error  error
+				}
+				CreateUser struct {
+					Input models.CreateUserModel
+					Error error
+				}
+			}{
+				GetUser: struct {
+					Input  string
+					Output models.UserModel
+					Error  error
+				}{
+					Input:  "test@gmail.com",
+					Output: models.UserModel{},
+					Error:  nil,
+				},
+				CreateUser: struct {
+					Input models.CreateUserModel
+					Error error
+				}{},
+			},
+			Output: models.ResponseModel{
+				Status:  false,
+				Code:    400,
+				Message: "email already exist",
+				Result:  nil,
+			},
+		},
+		{
+			Name: "create user error",
+			Input: struct {
+				Email    string
+				Password string
+			}{
+				Email:    "test@gmail.com",
+				Password: "123",
+			},
+			Mock: struct {
+				GetUser struct {
+					Input  string
+					Output models.UserModel
+					Error  error
+				}
+				CreateUser struct {
+					Input models.CreateUserModel
+					Error error
+				}
+			}{
+				GetUser: struct {
+					Input  string
+					Output models.UserModel
+					Error  error
+				}{
+					Input:  "test@gmail.com",
+					Output: models.UserModel{},
+					Error:  mongo.ErrNoDocuments,
+				},
+				CreateUser: struct {
+					Input models.CreateUserModel
+					Error error
+				}{
+					Input: models.CreateUserModel{
+						Email:    "test@gmail.com",
+						Password: "123",
+					},
+					Error: errors.New("create user error"),
+				},
+			},
+			Output: models.ResponseModel{
+				Status:  false,
+				Code:    400,
+				Message: "create user error",
+				Result:  nil,
+			},
+		},
+	}
+
+	for _, c := range cases {
+		t.Run(c.Name, func(t *testing.T) {
+			userRepo := repositories.NewUserRepositoryMock()
+			userRepo.On("GetUser", c.Mock.GetUser.Input).Return(c.Mock.GetUser.Output, c.Mock.GetUser.Error)
+			userRepo.On("CreateUser", mock.Anything).Return(c.Mock.CreateUser.Error)
+			userService := services.NewUserService(userRepo)
+			result := userService.CreateUser(c.Input.Email, c.Input.Password)
+
+			assert.Equal(t, result, c.Output)
 		})
 	}
 }
